@@ -13,9 +13,11 @@ type Logger interface {
 	Debug(log string, args ...any)
 	DebugWithCtx(ctx context.Context, logMsg string, args ...any)
 	Info(log string, args ...any)
+	InfoWithCtx(ctx context.Context, logMsg string, args ...any)
 	Error(log string, args ...any)
 	ErrorWithCtx(ctx context.Context, logMsg string, args ...any)
 	Warn(log string, args ...any)
+	WarnWithCtx(ctx context.Context, logMsg string, args ...any)
 }
 
 type Impl struct {
@@ -40,11 +42,21 @@ func Info(logMsg string, args ...any) {
 	log.Info(logMsg, args...)
 }
 
+func InfoWithCtx(ctx context.Context, logMsg string, args ...any) {
+	args = append(args, "request_id", ctx.Value("request_id"))
+	log.InfoContext(ctx, logMsg, args...)
+}
+
 /*
 Warn log
 */
 func Warn(logMsg string, args ...any) {
 	log.Warn(logMsg, args...)
+}
+
+func WarnWithCtx(ctx context.Context, logMsg string, args ...any) {
+	args = append(args, "request_id", ctx.Value("request_id"))
+	log.WarnContext(ctx, logMsg, args...)
 }
 
 /*
