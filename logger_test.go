@@ -2,9 +2,9 @@ package logger_test
 
 import (
 	"fmt"
-	"logger"
 	"testing"
 
+	"github.com/jenish-jain/logger"
 	"github.com/stretchr/testify/suite"
 )
 

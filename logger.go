@@ -5,9 +5,14 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var log *slog.Logger
+
+const request_id = "request_id"
 
 type Logger interface {
 	Debug(log string, args ...any)
@@ -18,6 +23,7 @@ type Logger interface {
 	ErrorWithCtx(ctx context.Context, logMsg string, args ...any)
 	Warn(log string, args ...any)
 	WarnWithCtx(ctx context.Context, logMsg string, args ...any)
+	AttachRequestIdToRequests(c *gin.Context)
 }
 
 type Impl struct {
@@ -31,7 +37,7 @@ func Debug(logMsg string, args ...any) {
 }
 
 func DebugWithCtx(ctx context.Context, logMsg string, args ...any) {
-	args = append(args, "request_id", ctx.Value("request_id"))
+	args = append(args, request_id, ctx.Value(request_id))
 	log.DebugContext(ctx, logMsg, args...)
 }
 
@@ -43,7 +49,7 @@ func Info(logMsg string, args ...any) {
 }
 
 func InfoWithCtx(ctx context.Context, logMsg string, args ...any) {
-	args = append(args, "request_id", ctx.Value("request_id"))
+	args = append(args, request_id, ctx.Value(request_id))
 	log.InfoContext(ctx, logMsg, args...)
 }
 
@@ -55,7 +61,7 @@ func Warn(logMsg string, args ...any) {
 }
 
 func WarnWithCtx(ctx context.Context, logMsg string, args ...any) {
-	args = append(args, "request_id", ctx.Value("request_id"))
+	args = append(args, request_id, ctx.Value(request_id))
 	log.WarnContext(ctx, logMsg, args...)
 }
 
@@ -67,8 +73,15 @@ func Error(logMsg string, args ...any) {
 }
 
 func ErrorWithCtx(ctx context.Context, logMsg string, args ...any) {
-	args = append(args, "request_id", ctx.Value("request_id"))
+	args = append(args, request_id, ctx.Value(request_id))
 	log.ErrorContext(ctx, logMsg, args...)
+}
+
+func AttachRequestIdToRequests(c *gin.Context) {
+	u := uuid.New()
+	c.Set(request_id, u)
+	DebugWithCtx(c, "request started", "method", c.Request.Method, "path", c.Request.URL.Path)
+	c.Next()
 }
 
 func Init(logLevel string) {
