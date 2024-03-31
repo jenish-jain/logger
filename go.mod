@@ -1,4 +1,4 @@
-module logger
+module github.com/jenish-jain/logger
 
 go 1.22.0
 
